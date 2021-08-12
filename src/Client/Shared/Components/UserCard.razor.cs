@@ -1,4 +1,5 @@
 ﻿using Eventinars.Client.Extensions;
+using Eventinars.Shared.Constants.Storage;
 using Microsoft.AspNetCore.Components;
 using System.Threading.Tasks;
 
@@ -32,12 +33,19 @@ namespace Eventinars.Client.Shared.Components
             {
                 FirstLetterOfName = FirstName[0];
             }
+
             var UserId = user.GetUserId();
-            var imageResponse = await _accountManager.GetProfilePictureAsync(UserId);
-            if (imageResponse.Succeeded)
+            // var imageResponse = await _accountManager.GetProfilePictureAsync(UserId);
+            // if (imageResponse.Succeeded)
+            // {
+            //     ImageDataUrl = imageResponse.Data;
+            // }
+            var imageResponse = await _localStorage.GetItemAsync<string>(StorageConstants.Local.UserImageURL);
+            if (!string.IsNullOrEmpty(imageResponse))
             {
-                ImageDataUrl = imageResponse.Data;
+                ImageDataUrl = imageResponse;
             }
         }
+
     }
 }

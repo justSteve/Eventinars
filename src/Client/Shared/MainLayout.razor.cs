@@ -31,28 +31,39 @@ namespace Eventinars.Client.Shared
             if (user == null) return;
             if (user.Identity?.IsAuthenticated == true)
             {
-                CurrentUserId = user.GetUserId();                
-                FirstName = user.GetFirstName();
-                if (FirstName.Length > 0)
+                if (string.IsNullOrEmpty(CurrentUserId))
                 {
-                    FirstLetterOfName = FirstName[0];
-                }
-                SecondName = user.GetLastName();
-                Email = user.GetEmail();
-                var imageResponse = await _accountManager.GetProfilePictureAsync(CurrentUserId);
-                if (imageResponse.Succeeded)
-                {
-                    ImageDataUrl = imageResponse.Data;
-                }
+                    CurrentUserId = user.GetUserId();
+                    FirstName = user.GetFirstName();
+                    if (FirstName.Length > 0)
+                    {
+                        FirstLetterOfName = FirstName[0];
+                    }
 
-                var currentUserResult = await _userManager.GetAsync(CurrentUserId);
-                if (!currentUserResult.Succeeded || currentUserResult.Data == null)
-                {
-                    _snackBar.Add(localizer["You are logged out because the user with your Token has been deleted."], Severity.Error);
-                    await _authenticationManager.Logout();
-                }
+                    SecondName = user.GetLastName();
+                    Email = user.GetEmail();
+                    var imageResponse = await _accountManager.GetProfilePictureAsync(CurrentUserId);
+                    if (imageResponse.Succeeded)
+                    {
+                        ImageDataUrl = imageResponse.Data;
+                    }
 
-                await hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, CurrentUserId);
+                    var currentUserResult = await _userManager.GetAsync(CurrentUserId);
+                    if (!currentUserResult.Succeeded || currentUserResult.Data == null)
+                    {
+                        _snackBar.Add(localizer["You are logged out because the user with your Token has been deleted."],
+                            Severity.Error);
+                        CurrentUserId = string.Empty;
+                        ImageDataUrl = string.Empty;
+                        FirstName = string.Empty;
+                        SecondName = string.Empty;
+                        Email = string.Empty;
+                        FirstLetterOfName = char.MinValue;
+                        await _authenticationManager.Logout();
+                    }
+
+                    await hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, CurrentUserId);
+                }
             }
         }
 
