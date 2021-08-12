@@ -30,7 +30,6 @@ namespace Eventinars.Application.Validators
             isJson = isJson && value.StartsWith("{") && value.EndsWith("}")
                      || value.StartsWith("[") && value.EndsWith("]");
 
-
             return isJson;
         }
 
